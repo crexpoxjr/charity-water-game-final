@@ -1,0 +1,164 @@
+/* Charity: water Brand Colors
+
+Primary Colors:
+- Yellow:     #FFC907
+- Blue:       #2E9DF7
+
+Secondary Colors:
+- Light Blue: #8BD1CB
+- Green:      #4FCB53
+- Orange:     #FF902A
+- Red:        #F5402C
+- Dark Green: #159A48
+- Pink:       #F16061
+
+*/
+
+:root {
+    --cell-size: clamp(28px, 3vw, 42px);
+    --gap-size: clamp(4px, 0.6vw, 8px);
+}
+
+.logo {
+    width: 100%;
+    margin-bottom: 1.5rem;
+    height: auto;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #1f2937;
+    background: linear-gradient(135deg, #f6fbff, #eef7ff);
+}
+
+.page {
+    width: min(100%, 760px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.3rem, 2.2vw, 2rem);
+}
+
+.target-status {
+    margin: 0 0 1rem;
+    font-weight: 600;
+    color: #2E9DF7;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.controls button {
+    border: none;
+    border-radius: 999px;
+    padding: 0.6rem 1rem;
+    background: #2E9DF7;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(46, 157, 247, 0.25);
+}
+
+.controls button:hover {
+    background: #1f7ed6;
+}
+
+.score-display {
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #159A48;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.game-grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(9, var(--cell-size));
+    gap: var(--gap-size);
+    width: max-content;
+    padding: 0.25rem;
+}
+
+.connection-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.grid-cell {
+    width: var(--cell-size);
+    height: var(--cell-size);
+    background: #8BD1CB;
+    border: 2px solid #2E9DF7;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.grid-cell:hover {
+    transform: translateY(-2px);
+}
+
+.grid-cell.selected {
+    background: #4FCB53;
+    outline: 3px solid #FF902A;
+}
+
+.grid-cell.target {
+    background: #FFC907;
+    border-color: #FF902A;
+}
+
+.grid-cell.completed {
+    background: #4FCB53;
+    border-color: #159A48;
+}
+
+.grid-cell.path {
+    background: #4FCB53;
+    border-color: #159A48;
+    opacity: 0.9;
+}
+
+.grid-cell .cell-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.connection-line {
+    stroke: #2123be;
+    stroke-width: 4;
+    stroke-linecap: round;
+}

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charity Water Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="page">
+        <img src="img/cw_logo_horizontal.png" alt="Charity Water Logo" class="logo" />
+        <h1>Welcome to Water Connector Prototype!</h1>
+        <p id="target-status" class="target-status">Connect the highlighted targets in order.</p>
+
+        <div class="controls" aria-label="Game controls">
+            <button id="reset-button" type="button">Reset Game</button>
+            <button id="new-set-button" type="button">New Target Set</button>
+            <div id="score-display" class="score-display">Score: 0</div>
+        </div>
+
+        <div class="game-grid" aria-label="Game grid">
+            <svg class="connection-layer" aria-hidden="true"></svg>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
