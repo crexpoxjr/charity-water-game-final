@@ -15,12 +15,24 @@
         <div class="controls" aria-label="Game controls">
             <button id="reset-button" type="button">Reset Game</button>
             <button id="new-set-button" type="button">New Target Set</button>
+            <button id="start-button" type="button" class="start-button">Start Game</button>
+            <label for="difficulty-select" class="difficulty-label">Difficulty</label>
+            <select id="difficulty-select" class="difficulty-select" aria-label="Select difficulty">
+                <option value="2">Easy</option>
+                <option value="3" selected>Medium</option>
+                <option value="4">Hard</option>
+            </select>
+            <div id="timer-display" class="timer-display">Time: 60s</div>
             <div id="score-display" class="score-display">Score: 0</div>
+            <div id="high-score-display" class="high-score-display">High Score: 0</div>
         </div>
 
         <div class="game-grid" aria-label="Game grid">
             <svg class="connection-layer" aria-hidden="true"></svg>
         </div>
+        <footer class="page-footer" aria-label="Site footer">
+            <p class="footer-text"><a href="https://www.charitywater.org/" class="footer-link">Learn more about Charity: water</a></p>
+        </footer>
     </main>
 
     <script src="script.js"></script>

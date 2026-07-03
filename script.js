@@ -4,12 +4,74 @@ const connectionLayer = document.querySelector('.connection-layer');
 const statusText = document.getElementById('target-status');
 const resetButton = document.getElementById('reset-button');
 const newSetButton = document.getElementById('new-set-button');
+const startButton = document.getElementById('start-button');
 const scoreDisplay = document.getElementById('score-display');
+const timerDisplay = document.getElementById('timer-display');
+const highScoreDisplay = document.getElementById('high-score-display');
+const difficultySelect = document.getElementById('difficulty-select');
 const totalCells = 81;
+const timerDuration = 60;
 let selectedCell = null;
 let targetIndex = 0;
 let score = 0;
 let currentTargets = [];
+let gameActive = false;
+let timeRemaining = timerDuration;
+let timerInterval = null;
+let audioContext = null;
+
+function ensureAudioContext() {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContext.state === 'suspended') {
+        audioContext.resume();
+    }
+    return audioContext;
+}
+
+const milestonePraises = [
+    'Amazing streak!',
+    'Unstoppable!',
+    'Keep it up!',
+    'Incredible run!',
+    'You’re on fire!'
+];
+
+function playSuccessSound() {
+    const ctx = ensureAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'triangle';
+    oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+    gainNode.gain.setValueAtTime(0.18, ctx.currentTime);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.12);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+}
+
+function playMilestoneSound() {
+    const ctx = ensureAudioContext();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(660, ctx.currentTime);
+    gainNode.gain.setValueAtTime(0.22, ctx.currentTime);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.18);
+    oscillator.stop(ctx.currentTime + 0.18);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+}
 
 function getCellCenter(cell) {
     const rect = cell.getBoundingClientRect();
@@ -41,6 +103,58 @@ function updateStatus(message) {
 
 function updateScore() {
     scoreDisplay.textContent = `Score: ${score}`;
+}
+
+function getDifficultyKey() {
+    return `charityWaterGameHighScore_${difficultySelect.value}`;
+}
+
+function loadHighScore() {
+    const saved = localStorage.getItem(getDifficultyKey());
+    return saved ? Number(saved) : 0;
+}
+
+function saveHighScore(value) {
+    localStorage.setItem(getDifficultyKey(), String(value));
+}
+
+function updateHighScoreDisplay() {
+    const highScore = loadHighScore();
+    highScoreDisplay.textContent = `High Score: ${highScore}`;
+}
+
+function maybeUpdateHighScore() {
+    const highScore = loadHighScore();
+    if (score > highScore) {
+        saveHighScore(score);
+        updateHighScoreDisplay();
+    }
+}
+
+function updateTimerDisplay() {
+    timerDisplay.textContent = `Time: ${timeRemaining}s`;
+}
+
+function setGameActive(active) {
+    gameActive = active;
+    startButton.disabled = active;
+    difficultySelect.disabled = active;
+    document.querySelectorAll('.grid-cell').forEach((cell) => {
+        cell.disabled = !active;
+    });
+}
+
+function stopTimer() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
+
+function endGame() {
+    stopTimer();
+    setGameActive(false);
+    updateStatus(`Time's up! Final score: ${score}`);
 }
 
 function isStraightConnection(fromCell, toCell) {
@@ -83,7 +197,11 @@ function buildBoard(targets) {
             cell.innerHTML = `<span class="cell-number">${targetOrder}</span>`;
         }
 
+        cell.disabled = !gameActive;
         cell.addEventListener('click', () => {
+            if (!gameActive) {
+                return;
+            }
             const targetOrder = Number(cell.dataset.targetOrder || 0);
 
             if (!selectedCell) {
@@ -117,16 +235,26 @@ function buildBoard(targets) {
                 selectedCell = null;
                 targetIndex += 1;
 
-                if (targetIndex === 2) {
+                if (targetIndex === currentTargets.length - 1) {
                     score += 1;
                     updateScore();
+
+                    if (score % 5 === 0) {
+                        playMilestoneSound();
+                        const praise = milestonePraises[Math.floor(Math.random() * milestonePraises.length)];
+                        updateStatus(`${praise} ${score} points reached!`);
+                    } else {
+                        playSuccessSound();
+                        updateStatus('All targets connected! Generating a new target set...');
+                    }
+
+                    setTimeout(() => {
+                        buildBoard(pickRandomTargets(Number(difficultySelect.value), totalCells));
+                    }, 500);
+                    return;
                 }
 
-                if (targetIndex < 2) {
-                    updateStatus(`Nice! Connect target ${targetIndex + 2}.`);
-                } else {
-                    updateStatus('All targets connected!');
-                }
+                updateStatus(`Nice! Connect target ${targetIndex + 2}.`);
             } else if (targetOrder === 0) {
                 drawConnection(selectedCell, cell);
                 selectedCell.classList.remove('selected');
@@ -143,15 +271,61 @@ function buildBoard(targets) {
     }
 }
 
-resetButton.addEventListener('click', () => {
-    buildBoard(currentTargets);
+function startGame() {
+    if (gameActive) {
+        return;
+    }
+
+    ensureAudioContext();
     score = 0;
     updateScore();
+    timeRemaining = timerDuration;
+    updateTimerDisplay();
+    buildBoard(pickRandomTargets(Number(difficultySelect.value), totalCells));
+    setGameActive(true);
+    updateStatus('Connect the highlighted targets in order.');
+
+    timerInterval = setInterval(() => {
+        timeRemaining -= 1;
+        updateTimerDisplay();
+
+        if (timeRemaining <= 0) {
+            maybeUpdateHighScore();
+            endGame();
+        }
+    }, 1000);
+}
+
+resetButton.addEventListener('click', () => {
+    maybeUpdateHighScore();
+    stopTimer();
+    score = 0;
+    timeRemaining = timerDuration;
+    updateScore();
+    updateTimerDisplay();
+    buildBoard(pickRandomTargets(Number(difficultySelect.value), totalCells));
+    setGameActive(false);
+    updateStatus('Press Start to begin.');
 });
 
 newSetButton.addEventListener('click', () => {
-    buildBoard(pickRandomTargets(3, totalCells));
+    buildBoard(pickRandomTargets(Number(difficultySelect.value), totalCells));
+    if (!gameActive) {
+        updateStatus('Press Start to begin.');
+    }
+});
+
+startButton.addEventListener('click', startGame);
+
+difficultySelect.addEventListener('change', () => {
+    if (!gameActive) {
+        buildBoard(pickRandomTargets(Number(difficultySelect.value), totalCells));
+    }
+    updateHighScoreDisplay();
 });
 
 updateScore();
-buildBoard(pickRandomTargets(3, totalCells));
+updateHighScoreDisplay();
+updateTimerDisplay();
+const initialCount = Number((difficultySelect && difficultySelect.value) || 3);
+buildBoard(pickRandomTargets(initialCount, totalCells));

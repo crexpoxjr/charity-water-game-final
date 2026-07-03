@@ -26,7 +26,7 @@ Secondary Colors:
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Proxima Nova", "Avenir", "Helvetica Neue", Georgia;
     margin: 0;
     min-height: 100vh;
     display: flex;
@@ -48,6 +48,7 @@ body {
 
 h1 {
     margin: 0 0 0.75rem;
+    font-family: "Avenir", "Proxima Nova", "Helvetica Neue", Georgia;
     font-size: clamp(1.3rem, 2.2vw, 2rem);
 }
 
@@ -81,6 +82,45 @@ h1 {
     background: #1f7ed6;
 }
 
+.start-button {
+    border: none;
+    border-radius: 999px;
+    padding: 0.6rem 1rem;
+    background: #FF902A;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(255, 144, 42, 0.25);
+}
+
+.start-button:hover {
+    background: #f56c00;
+}
+
+.timer-display {
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #2E9DF7;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(46, 157, 247, 0.12);
+}
+
+.high-score-display {
+    padding: 0.6rem 0.9rem;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #1f2937;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.grid-cell:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .score-display {
     padding: 0.6rem 0.9rem;
     border-radius: 999px;
@@ -88,6 +128,29 @@ h1 {
     color: #159A48;
     font-weight: 700;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Difficulty selector styles */
+.difficulty-label {
+    font-weight: 700;
+    color: #1f2937;
+    margin-left: 0.35rem;
+}
+
+.difficulty-select {
+    border: none;
+    border-radius: 999px;
+    padding: 0.5rem 0.75rem;
+    background: #ffffff;
+    color: #1f2937;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(46, 157, 247, 0.12);
+    appearance: none;
+}
+
+.difficulty-select:focus {
+    outline: 3px solid rgba(46, 157, 247, 0.15);
 }
 
 .game-grid {
@@ -161,4 +224,49 @@ h1 {
     stroke: #2123be;
     stroke-width: 4;
     stroke-linecap: round;
+}
+
+/* Footer styles */
+.page-footer {
+    width: 100%;
+    max-width: 760px;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(46, 157, 247, 0.06);
+    border-radius: 12px;
+    color: #1f2937;
+    z-index: 1;
+}
+
+.footer-text {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.footer-link {
+    color: #2E9DF7;
+    text-decoration: underline;
+    margin-left: 0.35rem;
+}
+
+.footer-link:hover,
+.footer-link:focus {
+    color: #1f7ed6;
+    outline: none;
+    text-decoration: none;
+}
+
+@media (max-width: 480px) {
+    .page-footer {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .footer-text {
+        font-size: 0.85rem;
+        text-align: center;
+    }
 }
